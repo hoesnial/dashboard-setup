@@ -3,48 +3,160 @@ import { ArrowRightIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { lusitana } from '@/app/ui/fonts';
 import Image from 'next/image';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Zap, Shield, Smartphone, Star, Users, Award } from 'lucide-react';
 
 export default function Home() {
+  const features = [
+    {
+      icon: Zap,
+      title: 'Lightning Fast',
+      description: 'Built for speed and performance with modern technologies.',
+    },
+    {
+      icon: Shield,
+      title: 'Secure by Design',
+      description: 'Enterprise-grade security to protect your valuable data.',
+    },
+    {
+      icon: Smartphone,
+      title: 'Mobile Ready',
+      description: 'Responsive design that works perfectly on all devices.',
+    },
+  ];
+
+  const stats = [
+    { icon: Users, label: 'Active Users', value: '10K+' },
+    { icon: Award, label: 'Awards Won', value: '15' },
+    { icon: Star, label: 'Customer Rating', value: '4.9' },
+  ];
+
   return (
-    <main className="flex min-h-screen flex-col p-6">
-      <div className="flex h-20 shrink-0 items-end rounded-lg bg-blue-500 p-4 md:h-52">
-        <AcmeLogo />
-      </div>
-      <div className="mt-4 flex grow flex-col gap-4 md:flex-row">
-        <div className="flex flex-col justify-center gap-6 rounded-lg bg-gray-50 px-6 py-10 md:w-2/5 md:px-20">
-          <div className="relative w-0 h-0 border-l-[15px] border-r-[15px] border-b-[26px] border-l-transparent border-r-transparent border-b-black"/>
-          <p className={`${lusitana.className} text-xl text-gray-800 md:text-3xl md:leading-normal`}>
-            <strong>Welcome to Acme.</strong> This is the example for the{' '}
-            <a href="https://nextjs.org/learn/" className="text-blue-500">
-              Next.js Learn Course
-            </a>
-            , brought to you by Vercel.
+    <div className="min-h-screen">
+      {/* Hero Section */}
+      <section className="relative bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 text-white overflow-hidden">
+        <div className="absolute inset-0 bg-black/20"></div>
+        <div className="relative container mx-auto px-4 py-24">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-8">
+              <div>
+                <Badge variant="secondary" className="mb-4">
+                  🚀 New Dashboard Pro Available
+                </Badge>
+                <h1 className={`${lusitana.className} text-5xl md:text-6xl font-bold leading-tight`}>
+                  Welcome to <span className="text-yellow-300">Acme</span>
+                </h1>
+                <p className="text-xl text-blue-100 mt-6 leading-relaxed">
+                  Empowering businesses with innovative technology solutions that drive growth, 
+                  enhance efficiency, and create meaningful connections.
+                </p>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link href="/dashboard">
+                  <Button size="lg" className="bg-white text-blue-600 hover:bg-blue-50">
+                    <span>Get Started</span>
+                    <ArrowRightIcon className="w-5 h-5 ml-2" />
+                  </Button>
+                </Link>
+                <Link href="/products">
+                  <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600">
+                    View Products
+                  </Button>
+                </Link>
+              </div>
+
+              {/* Stats */}
+              <div className="flex flex-wrap gap-8 pt-8">
+                {stats.map((stat, index) => (
+                  <div key={index} className="flex items-center space-x-3">
+                    <stat.icon className="w-6 h-6 text-yellow-300" />
+                    <div>
+                      <div className="text-2xl font-bold">{stat.value}</div>
+                      <div className="text-blue-200 text-sm">{stat.label}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div className="relative">
+              <Image
+                src="https://images.pexels.com/photos/265087/pexels-photo-265087.jpeg?auto=compress&cs=tinysrgb&w=1000&h=760&fit=crop"
+                width={600}
+                height={400}
+                className="rounded-2xl shadow-2xl"
+                alt="Dashboard preview showing analytics and data visualization"
+                priority
+              />
+              <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-xl shadow-lg">
+                <div className="flex items-center space-x-3">
+                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                  <span className="text-gray-700 font-medium">Live Dashboard</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-24 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              Why Choose Acme?
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              We provide cutting-edge solutions designed to transform your business operations.
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            {features.map((feature, index) => (
+              <Card key={index} className="text-center hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <feature.icon className="w-8 h-8 text-blue-600" />
+                  </div>
+                  <CardTitle className="text-xl">{feature.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription className="text-base">
+                    {feature.description}
+                  </CardDescription>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-24 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-4xl font-bold mb-6">
+            Ready to Transform Your Business?
+          </h2>
+          <p className="text-xl mb-8 max-w-2xl mx-auto opacity-90">
+            Join thousands of satisfied customers who trust Acme for their technology needs.
           </p>
-          <Link
-            href="/dashboard"
-            className="flex items-center gap-5 self-start rounded-lg bg-blue-500 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-blue-400 md:text-base"
-          >
-            <span>Log in</span> <ArrowRightIcon className="w-5 md:w-6" />
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/contact">
+              <Button size="lg" className="bg-white text-blue-600 hover:bg-blue-50">
+                Start Free Trial
+              </Button>
+            </Link>
+            <Link href="/about">
+              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600">
+                Learn More
+              </Button>
+            </Link>
+          </div>
         </div>
-        <div className="flex items-center justify-center p-6 md:w-3/5 md:px-28 md:py-12">
-          {/* Add Hero Images Here */}
-          <Image
-            src="https://images.pexels.com/photos/265087/pexels-photo-265087.jpeg?auto=compress&cs=tinysrgb&w=1000&h=760&fit=crop"
-            width={1000}
-            height={760}
-            className="hidden md:block"
-            alt="Screenshots of the dashboard project showing desktop version"
-          />
-          <Image
-            src="https://images.pexels.com/photos/265087/pexels-photo-265087.jpeg?auto=compress&cs=tinysrgb&w=560&h=620&fit=crop"
-            width={560}
-            height={620}
-            className="block md:hidden"
-            alt="Screenshot of the dashboard project showing mobile version"
-          />
-        </div>
-      </div>
-    </main>
+      </section>
+    </div>
   );
 }
