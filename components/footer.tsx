@@ -51,7 +51,7 @@ export default function Footer() {
               <span className="font-bold text-xl">Acme</span>
             </Link>
             <p className="text-gray-400 mb-6 max-w-sm">
-              Empowering businesses with innovative technology solutions that drive growth and success.
+              Memberdayakan bisnis dengan solusi teknologi inovatif yang mendorong pertumbuhan dan kesuksesan.
             </p>
             <div className="flex space-x-4">
               {socialLinks.map((social) => (

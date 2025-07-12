@@ -10,28 +10,28 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   const stats = [
-    { icon: Users, label: 'Team Members', value: '50+' },
-    { icon: Target, label: 'Projects Completed', value: '200+' },
-    { icon: Award, label: 'Awards Won', value: '15' },
-    { icon: Heart, label: 'Happy Clients', value: '500+' },
+    { icon: Users, label: 'Anggota Tim', value: '50+' },
+    { icon: Target, label: 'Proyek Selesai', value: '200+' },
+    { icon: Award, label: 'Penghargaan', value: '15' },
+    { icon: Heart, label: 'Klien Puas', value: '500+' },
   ];
 
   const values = [
     {
       title: 'Innovation',
-      description: 'We constantly push boundaries to deliver cutting-edge solutions.',
+      description: 'Kami terus mendorong batas untuk memberikan solusi terdepan.',
     },
     {
       title: 'Quality',
-      description: 'Excellence is not just a goal, it\'s our standard in everything we do.',
+      description: 'Keunggulan bukan hanya tujuan, tetapi standar kami dalam segala hal.',
     },
     {
       title: 'Collaboration',
-      description: 'We believe in the power of teamwork and open communication.',
+      description: 'Kami percaya pada kekuatan kerja tim dan komunikasi terbuka.',
     },
     {
       title: 'Integrity',
-      description: 'Honesty and transparency guide all our business relationships.',
+      description: 'Kejujuran dan transparansi memandu semua hubungan bisnis kami.',
     },
   ];
 

@@ -22,20 +22,20 @@ export default function ContactPage() {
     {
       icon: Phone,
       title: 'Phone',
-      value: '+1 (555) 123-4567',
-      description: 'Mon-Fri from 8am to 6pm',
+      value: '+62 21 1234-5678',
+      description: 'Senin-Jumat 08:00 - 18:00 WIB',
     },
     {
       icon: MapPin,
       title: 'Office',
-      value: '123 Business St, Suite 100',
-      description: 'San Francisco, CA 94105',
+      value: 'Jl. Sudirman No. 123, Suite 100',
+      description: 'Jakarta Pusat, DKI Jakarta 10220',
     },
     {
       icon: Clock,
-      title: 'Working Hours',
-      value: 'Monday - Friday',
-      description: '8:00 AM - 6:00 PM PST',
+      title: 'Jam Kerja',
+      value: 'Senin - Jumat',
+      description: '08:00 - 18:00 WIB',
     },
   ];
 

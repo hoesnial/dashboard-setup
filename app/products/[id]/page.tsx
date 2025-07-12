@@ -25,7 +25,7 @@ const products = {
     name: 'Dashboard Pro',
     description: 'Advanced analytics dashboard with real-time data visualization and custom reporting capabilities.',
     longDescription: 'Dashboard Pro is our flagship analytics solution that transforms raw data into actionable insights. With powerful visualization tools, real-time monitoring, and customizable reports, you can make data-driven decisions faster than ever before.',
-    price: '$99/month',
+    price: 'Rp 1.499.000/bulan',
     rating: 4.9,
     reviews: 1247,
     category: 'Analytics',
@@ -61,7 +61,7 @@ const products = {
     name: 'Security Suite',
     description: 'Comprehensive security solution with advanced threat detection and prevention systems.',
     longDescription: 'Security Suite provides enterprise-grade protection for your digital assets. Our AI-powered threat detection system monitors your infrastructure 24/7, while advanced encryption keeps your data safe from unauthorized access.',
-    price: '$149/month',
+    price: 'Rp 2.199.000/bulan',
     rating: 4.8,
     reviews: 892,
     category: 'Security',
@@ -97,7 +97,7 @@ const products = {
     name: 'Mobile App Builder',
     description: 'No-code platform to build beautiful mobile applications for iOS and Android platforms.',
     longDescription: 'Mobile App Builder empowers anyone to create professional mobile applications without coding. Our intuitive drag-and-drop interface, combined with powerful features and seamless app store publishing, makes mobile app development accessible to everyone.',
-    price: '$79/month',
+    price: 'Rp 1.199.000/bulan',
     rating: 4.7,
     reviews: 2156,
     category: 'Development',
@@ -297,7 +297,7 @@ export default function ProductDetailPage({ params }: Props) {
               <CardContent className="space-y-6">
                 <div className="text-center">
                   <div className="text-4xl font-bold text-gray-900 mb-2">{product.price}</div>
-                  <p className="text-gray-600">per month, billed annually</p>
+                  <p className="text-gray-600">per bulan, ditagih tahunan</p>
                 </div>
 
                 <div className="space-y-3">
