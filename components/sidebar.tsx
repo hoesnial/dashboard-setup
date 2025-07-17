@@ -71,32 +71,32 @@ export default function Sidebar({ className }: SidebarProps) {
     <>
       {/* Desktop Sidebar */}
       <div className={cn(
-        "hidden lg:flex lg:flex-col lg:fixed lg:inset-y-0 lg:z-50 lg:bg-white lg:border-r lg:border-gray-200",
+        "hidden lg:flex lg:flex-col lg:fixed lg:inset-y-0 lg:z-50 lg:bg-white lg:border-r lg:border-gray-200 lg:shadow-sm",
         isCollapsed ? "lg:w-16" : "lg:w-72",
         className
       )}>
         {/* Logo */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50/50">
           {!isCollapsed && (
             <Link href="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+              <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-md">
                 <span className="text-white font-bold text-sm">A</span>
               </div>
-              <span className="font-bold text-xl text-gray-900">Acme</span>
+              <span className="font-bold text-xl text-gray-900 tracking-tight">Acme</span>
             </Link>
           )}
           
           {isCollapsed && (
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center mx-auto">
+            <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center mx-auto shadow-md">
               <span className="text-white font-bold text-sm">A</span>
             </div>
           )}
           
           <Button
             variant="ghost"
-            size="sm"
+            size="icon"
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="p-1.5"
+            className="h-8 w-8 hover:bg-gray-200 transition-colors"
           >
             {isCollapsed ? (
               <ChevronRight className="w-4 h-4" />
@@ -107,7 +107,7 @@ export default function Sidebar({ className }: SidebarProps) {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+        <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
           {navigation.map((item) => {
             const isActive = pathname === item.href || 
               (item.href !== '/' && pathname.startsWith(item.href));
@@ -117,32 +117,35 @@ export default function Sidebar({ className }: SidebarProps) {
                 key={item.name}
                 href={item.href}
                 className={cn(
-                  'flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group',
+                  'flex items-center space-x-3 px-3 py-3 rounded-xl text-sm font-medium transition-all duration-200 group relative',
                   isActive
-                    ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50',
-                  isCollapsed && 'justify-center px-2'
+                    ? 'bg-blue-50 text-blue-700 shadow-sm border border-blue-100'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 hover:shadow-sm',
+                  isCollapsed && 'justify-center px-3'
                 )}
                 title={isCollapsed ? item.name : undefined}
               >
+                {isActive && !isCollapsed && (
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full" />
+                )}
                 <item.icon className={cn(
                   "flex-shrink-0",
                   isActive ? "text-blue-600" : "text-gray-400 group-hover:text-gray-600",
-                  isCollapsed ? "w-5 h-5" : "w-4 h-4"
+                  isCollapsed ? "w-5 h-5" : "w-5 h-5"
                 )} />
                 
                 {!isCollapsed && (
                   <>
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
-                        <span>{item.name}</span>
+                        <span className="font-medium">{item.name}</span>
                         {item.badge && (
-                          <Badge variant="secondary" className="text-xs">
+                          <Badge variant="secondary" className="text-xs bg-orange-100 text-orange-700 border-orange-200">
                             {item.badge}
                           </Badge>
                         )}
                       </div>
-                      <p className="text-xs text-gray-500 mt-0.5">
+                      <p className="text-xs text-gray-500 mt-1 leading-tight">
                         {item.description}
                       </p>
                     </div>
@@ -155,16 +158,16 @@ export default function Sidebar({ className }: SidebarProps) {
 
         {/* Footer */}
         {!isCollapsed && (
-          <div className="p-4 border-t border-gray-200">
-            <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-3">
-              <h4 className="text-sm font-medium text-gray-900 mb-1">
+          <div className="p-4 border-t border-gray-200 bg-gray-50/30">
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-4 border border-blue-100">
+              <h4 className="text-sm font-semibold text-gray-900 mb-2">
                 Need Help?
               </h4>
-              <p className="text-xs text-gray-600 mb-2">
+              <p className="text-xs text-gray-600 mb-3 leading-relaxed">
                 Contact our support team
               </p>
               <Link href="/contact">
-                <Button size="sm" className="w-full text-xs">
+                <Button size="sm" className="w-full text-xs font-medium shadow-sm">
                   Get Support
                 </Button>
               </Link>
@@ -196,15 +199,15 @@ function MobileSidebar() {
         {/* Mobile Logo */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <Link href="/" className="flex items-center space-x-2" onClick={() => setIsOpen(false)}>
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+            <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-md">
               <span className="text-white font-bold text-sm">A</span>
             </div>
-            <span className="font-bold text-xl text-gray-900">Acme</span>
+            <span className="font-bold text-xl text-gray-900 tracking-tight">Acme</span>
           </Link>
         </div>
         
         {/* Mobile Navigation */}
-        <nav className="flex-1 p-4 space-y-2">
+        <nav className="flex-1 px-4 py-6 space-y-1">
           {navigation.map((item) => {
             const isActive = pathname === item.href || 
               (item.href !== '/' && pathname.startsWith(item.href));
@@ -215,26 +218,29 @@ function MobileSidebar() {
                 href={item.href}
                 onClick={() => setIsOpen(false)}
                 className={cn(
-                  'flex items-center space-x-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors w-full',
+                  'flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 w-full relative',
                   isActive
-                    ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                    ? 'bg-blue-50 text-blue-700 shadow-sm border border-blue-100'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 hover:shadow-sm'
                 )}
               >
+                {isActive && (
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-blue-600 rounded-r-full" />
+                )}
                 <item.icon className={cn(
                   "w-5 h-5 flex-shrink-0",
                   isActive ? "text-blue-600" : "text-gray-400"
                 )} />
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
-                    <span>{item.name}</span>
+                    <span className="font-medium">{item.name}</span>
                     {item.badge && (
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge variant="secondary" className="text-xs bg-orange-100 text-orange-700 border-orange-200">
                         {item.badge}
                       </Badge>
                     )}
                   </div>
-                  <p className="text-xs text-gray-500 mt-0.5">
+                  <p className="text-xs text-gray-500 mt-1 leading-tight">
                     {item.description}
                   </p>
                 </div>
@@ -244,16 +250,16 @@ function MobileSidebar() {
         </nav>
 
         {/* Mobile Footer */}
-        <div className="p-4 border-t border-gray-200">
-          <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-3">
-            <h4 className="text-sm font-medium text-gray-900 mb-1">
+        <div className="p-4 border-t border-gray-200 bg-gray-50/30">
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-4 border border-blue-100">
+            <h4 className="text-sm font-semibold text-gray-900 mb-2">
               Need Help?
             </h4>
-            <p className="text-xs text-gray-600 mb-2">
+            <p className="text-xs text-gray-600 mb-3 leading-relaxed">
               Contact our support team
             </p>
             <Link href="/contact" onClick={() => setIsOpen(false)}>
-              <Button size="sm" className="w-full text-xs">
+              <Button size="sm" className="w-full text-xs font-medium shadow-sm">
                 Get Support
               </Button>
             </Link>
