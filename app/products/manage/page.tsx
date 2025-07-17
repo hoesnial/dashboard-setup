@@ -184,8 +184,8 @@ export default function ProductManagePage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="container mx-auto px-4 py-8">
+    <div className="bg-white min-h-screen">
+      <div className="container mx-auto px-4 py-6 lg:py-8">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
@@ -197,7 +197,7 @@ export default function ProductManagePage() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardContent className="flex items-center p-6">
               <Package className="w-8 h-8 text-blue-600 mr-4" />
@@ -252,7 +252,7 @@ export default function ProductManagePage() {
         </div>
 
         {/* Main Content */}
-        <Card>
+        <Card className="shadow-sm">
           <CardHeader>
             <div className="flex justify-between items-center">
               <div>

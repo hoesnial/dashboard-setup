@@ -48,8 +48,8 @@ const products = [
 
 export default function ProductsPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50">
-      <div className="container mx-auto px-4 py-16">
+    <div className="bg-white">
+      <div className="container mx-auto px-4 py-8 lg:py-16">
         {/* Hero Section */}
         <div className="text-center mb-16">
           <h1 className="text-5xl font-bold text-gray-900 mb-6">
@@ -132,7 +132,7 @@ export default function ProductsPage() {
         </div>
 
         {/* CTA Section */}
-        <Card className="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+        <Card className="bg-gradient-to-r from-purple-600 to-pink-600 text-white mt-16">
           <CardContent className="text-center py-12">
             <h2 className="text-3xl font-bold mb-4">Ready to get started?</h2>
             <p className="text-xl mb-8 opacity-90">

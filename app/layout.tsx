@@ -1,7 +1,8 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import { inter } from '@/app/ui/fonts';
-import Navigation from '@/components/navigation';
+import Sidebar from '@/components/sidebar';
+import TopBar from '@/components/top-bar';
 import Footer from '@/components/footer';
 import { Toaster } from 'sonner';
 
@@ -18,9 +19,19 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} antialiased`}>
-        <Navigation />
-        <main>{children}</main>
-        <Footer />
+        <div className="min-h-screen bg-gray-50">
+          {/* Sidebar */}
+          <Sidebar />
+          
+          {/* Main Content */}
+          <div className="lg:pl-72">
+            <TopBar />
+            <main className="min-h-screen">
+              {children}
+            </main>
+            <Footer />
+          </div>
+        </div>
         <Toaster position="top-right" richColors />
       </body>
     </html>
