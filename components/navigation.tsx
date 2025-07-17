@@ -12,6 +12,7 @@ const navigation = [
   { name: 'Home', href: '/', icon: Home },
   { name: 'Dashboard', href: '/dashboard', icon: BarChart3 },
   { name: 'Products', href: '/products', icon: Package },
+  { name: 'Manage Products', href: '/products/manage', icon: Package },
   { name: 'About', href: '/about', icon: Info },
   { name: 'Contact', href: '/contact', icon: Phone },
 ];

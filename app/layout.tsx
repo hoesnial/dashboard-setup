@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { inter } from '@/app/ui/fonts';
 import Navigation from '@/components/navigation';
 import Footer from '@/components/footer';
+import { Toaster } from 'sonner';
 
 export const metadata: Metadata = {
   title: 'Acme Dashboard - Innovative Business Solutions',
@@ -20,6 +21,7 @@ export default function RootLayout({
         <Navigation />
         <main>{children}</main>
         <Footer />
+        <Toaster position="top-right" richColors />
       </body>
     </html>
   );
