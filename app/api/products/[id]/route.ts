@@ -1,61 +1,52 @@
-// Static data storage (shared with main route)
-let products = [
-  {
-    id: 1,
-    name: 'Dashboard Pro',
-    price: 1499000,
-    description: 'Advanced analytics dashboard with real-time data visualization and custom reporting.',
-    category: 'Analytics',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 2,
-    name: 'Security Suite',
-    price: 2199000,
-    description: 'Comprehensive security solution with advanced threat detection and prevention.',
-    category: 'Security',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 3,
-    name: 'Mobile App Builder',
-    price: 1199000,
-    description: 'No-code platform to build beautiful mobile applications for iOS and Android.',
-    category: 'Development',
-    createdAt: new Date().toISOString(),
-  },
-];
+import { NextRequest, NextResponse } from 'next/server';
+import { supabase } from '@/lib/supabase';
 
-// GET - Mengambil data product berdasarkan ID
+// GET - Mengambil data product berdasarkan ID dari database
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const id = parseInt(params.id);
-    const product = products.find(p => p.id === id);
+    const { data: product, error } = await supabase
+      .from('products')
+      .select('*')
+      .eq('id', params.id)
+      .single();
 
-    if (!product) {
-      return Response.json(
+    if (error) {
+      if (error.code === 'PGRST116') {
+        return NextResponse.json(
+          { 
+            success: false, 
+            message: 'Product not found' 
+          },
+          { status: 404 }
+        );
+      }
+      
+      console.error('Supabase error:', error);
+      return NextResponse.json(
         { 
           success: false, 
-          message: 'Product not found' 
+          message: 'Failed to retrieve product from database',
+          error: error.message
         },
-        { status: 404 }
+        { status: 500 }
       );
     }
 
-    return Response.json({
+    return NextResponse.json({
       success: true,
       data: product,
       message: 'Product retrieved successfully'
     });
 
   } catch (error) {
-    return Response.json(
+    console.error('API error:', error);
+    return NextResponse.json(
       { 
         success: false, 
-        message: 'Failed to retrieve product',
+        message: 'Internal server error',
         error: error instanceof Error ? error.message : 'Unknown error'
       },
       { status: 500 }
@@ -63,30 +54,17 @@ export async function GET(
   }
 }
 
-// PUT - Mengupdate data product
+// PUT - Mengupdate data product di database
 export async function PUT(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const id = parseInt(params.id);
     const body = await request.json();
     
-    const productIndex = products.findIndex(p => p.id === id);
-    
-    if (productIndex === -1) {
-      return Response.json(
-        { 
-          success: false, 
-          message: 'Product not found' 
-        },
-        { status: 404 }
-      );
-    }
-
     // Validasi input
     if (!body.name || !body.price) {
-      return Response.json(
+      return NextResponse.json(
         { 
           success: false, 
           message: 'Name and price are required' 
@@ -97,7 +75,7 @@ export async function PUT(
 
     // Validasi price harus number
     if (typeof body.price !== 'number' || body.price <= 0) {
-      return Response.json(
+      return NextResponse.json(
         { 
           success: false, 
           message: 'Price must be a positive number' 
@@ -106,27 +84,52 @@ export async function PUT(
       );
     }
 
-    // Update product
-    products[productIndex] = {
-      ...products[productIndex],
-      name: body.name,
-      price: body.price,
-      description: body.description || products[productIndex].description,
-      category: body.category || products[productIndex].category,
-      updatedAt: new Date().toISOString(),
-    };
+    const { data: product, error } = await supabase
+      .from('products')
+      .update({
+        name: body.name,
+        price: body.price,
+        description: body.description || '',
+        category: body.category || 'General',
+      })
+      .eq('id', params.id)
+      .select()
+      .single();
 
-    return Response.json({
+    if (error) {
+      if (error.code === 'PGRST116') {
+        return NextResponse.json(
+          { 
+            success: false, 
+            message: 'Product not found' 
+          },
+          { status: 404 }
+        );
+      }
+      
+      console.error('Supabase error:', error);
+      return NextResponse.json(
+        { 
+          success: false, 
+          message: 'Failed to update product in database',
+          error: error.message
+        },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({
       success: true,
-      data: products[productIndex],
+      data: product,
       message: 'Product updated successfully'
     });
 
   } catch (error) {
-    return Response.json(
+    console.error('API error:', error);
+    return NextResponse.json(
       { 
         success: false, 
-        message: 'Failed to update product',
+        message: 'Internal server error',
         error: error instanceof Error ? error.message : 'Unknown error'
       },
       { status: 500 }
@@ -134,39 +137,53 @@ export async function PUT(
   }
 }
 
-// DELETE - Menghapus data product
+// DELETE - Menghapus data product dari database
 export async function DELETE(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const id = parseInt(params.id);
-    const productIndex = products.findIndex(p => p.id === id);
-    
-    if (productIndex === -1) {
-      return Response.json(
+    const { data: product, error } = await supabase
+      .from('products')
+      .delete()
+      .eq('id', params.id)
+      .select()
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') {
+        return NextResponse.json(
+          { 
+            success: false, 
+            message: 'Product not found' 
+          },
+          { status: 404 }
+        );
+      }
+      
+      console.error('Supabase error:', error);
+      return NextResponse.json(
         { 
           success: false, 
-          message: 'Product not found' 
+          message: 'Failed to delete product from database',
+          error: error.message
         },
-        { status: 404 }
+        { status: 500 }
       );
     }
 
-    const deletedProduct = products[productIndex];
-    products.splice(productIndex, 1);
-
-    return Response.json({
+    return NextResponse.json({
       success: true,
-      data: deletedProduct,
+      data: product,
       message: 'Product deleted successfully'
     });
 
   } catch (error) {
-    return Response.json(
+    console.error('API error:', error);
+    return NextResponse.json(
       { 
         success: false, 
-        message: 'Failed to delete product',
+        message: 'Internal server error',
         error: error instanceof Error ? error.message : 'Unknown error'
       },
       { status: 500 }

@@ -11,22 +11,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Plus, Edit, Trash2, Package, TrendingUp, DollarSign, ShoppingCart } from 'lucide-react';
+import { Plus, Edit, Trash2, Package, TrendingUp, DollarSign, ShoppingCart, Database, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  description: string;
-  category: string;
-  createdAt: string;
-  updatedAt?: string;
-}
+import { Product } from '@/lib/supabase';
 
 export default function ManageProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -37,7 +29,7 @@ export default function ManageProductsPage() {
     category: ''
   });
 
-  // Fetch products
+  // Fetch products from database
   const fetchProducts = async () => {
     try {
       setLoading(true);
@@ -47,85 +39,99 @@ export default function ManageProductsPage() {
       if (result.success) {
         setProducts(result.data);
       } else {
-        toast.error('Gagal memuat produk');
+        toast.error(result.message || 'Gagal memuat produk dari database');
       }
     } catch (error) {
-      toast.error('Error memuat produk');
+      toast.error('Error koneksi ke database');
       console.error('Error:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  // Add product
+  // Add product to database
   const handleAddProduct = async () => {
+    if (!formData.name.trim() || !formData.price.trim()) {
+      toast.error('Nama dan harga produk harus diisi');
+      return;
+    }
+
     try {
+      setSubmitting(true);
       const response = await fetch('/api/products', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          name: formData.name,
+          name: formData.name.trim(),
           price: parseFloat(formData.price),
-          description: formData.description,
-          category: formData.category
+          description: formData.description.trim(),
+          category: formData.category || 'General'
         }),
       });
 
       const result = await response.json();
 
       if (result.success) {
-        toast.success('Produk berhasil ditambahkan');
+        toast.success('Produk berhasil ditambahkan ke database');
         setIsAddDialogOpen(false);
         resetForm();
         fetchProducts();
       } else {
-        toast.error(result.message || 'Gagal menambahkan produk');
+        toast.error(result.message || 'Gagal menambahkan produk ke database');
       }
     } catch (error) {
-      toast.error('Error menambahkan produk');
+      toast.error('Error koneksi ke database');
       console.error('Error:', error);
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  // Edit product
+  // Edit product in database
   const handleEditProduct = async () => {
-    if (!editingProduct) return;
+    if (!editingProduct || !formData.name.trim() || !formData.price.trim()) {
+      toast.error('Nama dan harga produk harus diisi');
+      return;
+    }
 
     try {
+      setSubmitting(true);
       const response = await fetch(`/api/products/${editingProduct.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          name: formData.name,
+          name: formData.name.trim(),
           price: parseFloat(formData.price),
-          description: formData.description,
-          category: formData.category
+          description: formData.description.trim(),
+          category: formData.category || 'General'
         }),
       });
 
       const result = await response.json();
 
       if (result.success) {
-        toast.success('Produk berhasil diupdate');
+        toast.success('Produk berhasil diupdate di database');
         setIsEditDialogOpen(false);
         setEditingProduct(null);
         resetForm();
         fetchProducts();
       } else {
-        toast.error(result.message || 'Gagal mengupdate produk');
+        toast.error(result.message || 'Gagal mengupdate produk di database');
       }
     } catch (error) {
-      toast.error('Error mengupdate produk');
+      toast.error('Error koneksi ke database');
       console.error('Error:', error);
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  // Delete product
-  const handleDeleteProduct = async (id: number) => {
+  // Delete product from database
+  const handleDeleteProduct = async (id: string) => {
     try {
       const response = await fetch(`/api/products/${id}`, {
         method: 'DELETE',
@@ -134,13 +140,13 @@ export default function ManageProductsPage() {
       const result = await response.json();
 
       if (result.success) {
-        toast.success('Produk berhasil dihapus');
+        toast.success('Produk berhasil dihapus dari database');
         fetchProducts();
       } else {
-        toast.error(result.message || 'Gagal menghapus produk');
+        toast.error(result.message || 'Gagal menghapus produk dari database');
       }
     } catch (error) {
-      toast.error('Error menghapus produk');
+      toast.error('Error koneksi ke database');
       console.error('Error:', error);
     }
   };
@@ -173,6 +179,16 @@ export default function ManageProductsPage() {
     }).format(amount);
   };
 
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('id-ID', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -188,8 +204,8 @@ export default function ManageProductsPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Memuat data produk...</p>
+            <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
+            <p className="text-gray-600">Memuat data dari database...</p>
           </div>
         </div>
       </div>
@@ -201,8 +217,11 @@ export default function ManageProductsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Kelola Produk</h1>
-          <p className="text-gray-600 mt-1">Kelola semua produk dalam sistem</p>
+          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
+            <Database className="w-8 h-8 text-blue-600" />
+            Kelola Produk Database
+          </h1>
+          <p className="text-gray-600 mt-1">Kelola semua produk yang tersimpan di database Supabase</p>
         </div>
         
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
@@ -216,32 +235,40 @@ export default function ManageProductsPage() {
             <DialogHeader>
               <DialogTitle>Tambah Produk Baru</DialogTitle>
               <DialogDescription>
-                Isi form di bawah untuk menambahkan produk baru
+                Isi form di bawah untuk menambahkan produk baru ke database
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div>
-                <Label htmlFor="name">Nama Produk</Label>
+                <Label htmlFor="name">Nama Produk *</Label>
                 <Input
                   id="name"
                   value={formData.name}
                   onChange={(e) => setFormData({...formData, name: e.target.value})}
                   placeholder="Masukkan nama produk"
+                  disabled={submitting}
                 />
               </div>
               <div>
-                <Label htmlFor="price">Harga (Rp)</Label>
+                <Label htmlFor="price">Harga (Rp) *</Label>
                 <Input
                   id="price"
                   type="number"
+                  min="0"
+                  step="1000"
                   value={formData.price}
                   onChange={(e) => setFormData({...formData, price: e.target.value})}
                   placeholder="Masukkan harga"
+                  disabled={submitting}
                 />
               </div>
               <div>
                 <Label htmlFor="category">Kategori</Label>
-                <Select value={formData.category} onValueChange={(value) => setFormData({...formData, category: value})}>
+                <Select 
+                  value={formData.category} 
+                  onValueChange={(value) => setFormData({...formData, category: value})}
+                  disabled={submitting}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Pilih kategori" />
                   </SelectTrigger>
@@ -261,15 +288,30 @@ export default function ManageProductsPage() {
                   onChange={(e) => setFormData({...formData, description: e.target.value})}
                   placeholder="Masukkan deskripsi produk"
                   rows={3}
+                  disabled={submitting}
                 />
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+              <Button 
+                variant="outline" 
+                onClick={() => setIsAddDialogOpen(false)}
+                disabled={submitting}
+              >
                 Batal
               </Button>
-              <Button onClick={handleAddProduct}>
-                Tambah Produk
+              <Button 
+                onClick={handleAddProduct}
+                disabled={submitting}
+              >
+                {submitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Menyimpan...
+                  </>
+                ) : (
+                  'Tambah Produk'
+                )}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -286,7 +328,7 @@ export default function ManageProductsPage() {
           <CardContent>
             <div className="text-2xl font-bold">{totalProducts}</div>
             <p className="text-xs text-muted-foreground">
-              Produk terdaftar
+              Produk di database
             </p>
           </CardContent>
         </Card>
@@ -334,82 +376,96 @@ export default function ManageProductsPage() {
       {/* Products Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Daftar Produk</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Database className="w-5 h-5 text-blue-600" />
+            Daftar Produk Database
+          </CardTitle>
           <CardDescription>
-            Kelola semua produk yang tersedia dalam sistem
+            Kelola semua produk yang tersimpan di database Supabase
           </CardDescription>
         </CardHeader>
         <CardContent>
           {products.length === 0 ? (
             <div className="text-center py-8">
-              <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Belum ada produk</h3>
-              <p className="text-gray-600 mb-4">Mulai dengan menambahkan produk pertama Anda</p>
+              <Database className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Database Kosong</h3>
+              <p className="text-gray-600 mb-4">Belum ada produk yang tersimpan di database</p>
               <Button onClick={() => setIsAddDialogOpen(true)}>
                 <Plus className="w-4 h-4 mr-2" />
-                Tambah Produk
+                Tambah Produk Pertama
               </Button>
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nama</TableHead>
-                  <TableHead>Kategori</TableHead>
-                  <TableHead>Harga</TableHead>
-                  <TableHead>Deskripsi</TableHead>
-                  <TableHead>Tanggal Dibuat</TableHead>
-                  <TableHead className="text-right">Aksi</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {products.map((product) => (
-                  <TableRow key={product.id}>
-                    <TableCell className="font-medium">{product.name}</TableCell>
-                    <TableCell>
-                      <Badge variant="secondary">{product.category}</Badge>
-                    </TableCell>
-                    <TableCell>{formatCurrency(product.price)}</TableCell>
-                    <TableCell className="max-w-xs truncate">{product.description}</TableCell>
-                    <TableCell>{new Date(product.createdAt).toLocaleDateString('id-ID')}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => openEditDialog(product)}
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="outline" size="sm">
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Hapus Produk</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Apakah Anda yakin ingin menghapus produk "{product.name}"? 
-                                Tindakan ini tidak dapat dibatalkan.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Batal</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleDeleteProduct(product.id)}>
-                                Hapus
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </div>
-                    </TableCell>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nama</TableHead>
+                    <TableHead>Kategori</TableHead>
+                    <TableHead>Harga</TableHead>
+                    <TableHead>Deskripsi</TableHead>
+                    <TableHead>Dibuat</TableHead>
+                    <TableHead>Diupdate</TableHead>
+                    <TableHead className="text-right">Aksi</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {products.map((product) => (
+                    <TableRow key={product.id}>
+                      <TableCell className="font-medium">{product.name}</TableCell>
+                      <TableCell>
+                        <Badge variant="secondary">{product.category}</Badge>
+                      </TableCell>
+                      <TableCell className="font-mono">{formatCurrency(product.price)}</TableCell>
+                      <TableCell className="max-w-xs truncate">{product.description}</TableCell>
+                      <TableCell className="text-sm text-gray-500">
+                        {formatDate(product.created_at)}
+                      </TableCell>
+                      <TableCell className="text-sm text-gray-500">
+                        {formatDate(product.updated_at)}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => openEditDialog(product)}
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="outline" size="sm">
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Hapus Produk dari Database</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Apakah Anda yakin ingin menghapus produk "{product.name}" dari database? 
+                                  Tindakan ini tidak dapat dibatalkan dan data akan hilang permanen.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Batal</AlertDialogCancel>
+                                <AlertDialogAction 
+                                  onClick={() => handleDeleteProduct(product.id)}
+                                  className="bg-red-600 hover:bg-red-700"
+                                >
+                                  Hapus dari Database
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </CardContent>
       </Card>
@@ -418,34 +474,42 @@ export default function ManageProductsPage() {
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Edit Produk</DialogTitle>
+            <DialogTitle>Edit Produk Database</DialogTitle>
             <DialogDescription>
-              Ubah informasi produk di bawah ini
+              Ubah informasi produk di database
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="edit-name">Nama Produk</Label>
+              <Label htmlFor="edit-name">Nama Produk *</Label>
               <Input
                 id="edit-name"
                 value={formData.name}
                 onChange={(e) => setFormData({...formData, name: e.target.value})}
                 placeholder="Masukkan nama produk"
+                disabled={submitting}
               />
             </div>
             <div>
-              <Label htmlFor="edit-price">Harga (Rp)</Label>
+              <Label htmlFor="edit-price">Harga (Rp) *</Label>
               <Input
                 id="edit-price"
                 type="number"
+                min="0"
+                step="1000"
                 value={formData.price}
                 onChange={(e) => setFormData({...formData, price: e.target.value})}
                 placeholder="Masukkan harga"
+                disabled={submitting}
               />
             </div>
             <div>
               <Label htmlFor="edit-category">Kategori</Label>
-              <Select value={formData.category} onValueChange={(value) => setFormData({...formData, category: value})}>
+              <Select 
+                value={formData.category} 
+                onValueChange={(value) => setFormData({...formData, category: value})}
+                disabled={submitting}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Pilih kategori" />
                 </SelectTrigger>
@@ -465,15 +529,30 @@ export default function ManageProductsPage() {
                 onChange={(e) => setFormData({...formData, description: e.target.value})}
                 placeholder="Masukkan deskripsi produk"
                 rows={3}
+                disabled={submitting}
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+            <Button 
+              variant="outline" 
+              onClick={() => setIsEditDialogOpen(false)}
+              disabled={submitting}
+            >
               Batal
             </Button>
-            <Button onClick={handleEditProduct}>
-              Update Produk
+            <Button 
+              onClick={handleEditProduct}
+              disabled={submitting}
+            >
+              {submitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Mengupdate...
+                </>
+              ) : (
+                'Update Produk'
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

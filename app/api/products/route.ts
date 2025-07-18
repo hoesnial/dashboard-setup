@@ -1,46 +1,38 @@
-// Static data storage (will reset on server restart)
-let products = [
-  {
-    id: 1,
-    name: 'Dashboard Pro',
-    price: 1499000,
-    description: 'Advanced analytics dashboard with real-time data visualization and custom reporting.',
-    category: 'Analytics',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 2,
-    name: 'Security Suite',
-    price: 2199000,
-    description: 'Comprehensive security solution with advanced threat detection and prevention.',
-    category: 'Security',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: 3,
-    name: 'Mobile App Builder',
-    price: 1199000,
-    description: 'No-code platform to build beautiful mobile applications for iOS and Android.',
-    category: 'Development',
-    createdAt: new Date().toISOString(),
-  },
-];
+import { NextRequest, NextResponse } from 'next/server';
+import { supabase } from '@/lib/supabase';
 
-let nextId = 4;
-
-// GET - Mengambil semua data products
+// GET - Mengambil semua data products dari database
 export async function GET() {
   try {
-    return Response.json({
+    const { data: products, error } = await supabase
+      .from('products')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Supabase error:', error);
+      return NextResponse.json(
+        { 
+          success: false, 
+          message: 'Failed to retrieve products from database',
+          error: error.message
+        },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({
       success: true,
-      data: products,
+      data: products || [],
       message: 'Products retrieved successfully'
     });
+
   } catch (error) {
-    return Response.json(
+    console.error('API error:', error);
+    return NextResponse.json(
       { 
         success: false, 
-        message: 'Failed to retrieve products',
+        message: 'Internal server error',
         error: error instanceof Error ? error.message : 'Unknown error'
       },
       { status: 500 }
@@ -48,14 +40,14 @@ export async function GET() {
   }
 }
 
-// POST - Menambahkan data baru
-export async function POST(request: Request) {
+// POST - Menambahkan data baru ke database
+export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
     // Validasi input
     if (!body.name || !body.price) {
-      return Response.json(
+      return NextResponse.json(
         { 
           success: false, 
           message: 'Name and price are required' 
@@ -66,7 +58,7 @@ export async function POST(request: Request) {
 
     // Validasi price harus number
     if (typeof body.price !== 'number' || body.price <= 0) {
-      return Response.json(
+      return NextResponse.json(
         { 
           success: false, 
           message: 'Price must be a positive number' 
@@ -75,28 +67,43 @@ export async function POST(request: Request) {
       );
     }
 
-    const newProduct = {
-      id: nextId++,
-      name: body.name,
-      price: body.price,
-      description: body.description || '',
-      category: body.category || 'General',
-      createdAt: new Date().toISOString(),
-    };
+    const { data: product, error } = await supabase
+      .from('products')
+      .insert([
+        {
+          name: body.name,
+          price: body.price,
+          description: body.description || '',
+          category: body.category || 'General',
+        }
+      ])
+      .select()
+      .single();
 
-    products.push(newProduct);
+    if (error) {
+      console.error('Supabase error:', error);
+      return NextResponse.json(
+        { 
+          success: false, 
+          message: 'Failed to create product in database',
+          error: error.message
+        },
+        { status: 500 }
+      );
+    }
 
-    return Response.json({
+    return NextResponse.json({
       success: true,
-      data: newProduct,
+      data: product,
       message: 'Product created successfully'
     }, { status: 201 });
 
   } catch (error) {
-    return Response.json(
+    console.error('API error:', error);
+    return NextResponse.json(
       { 
         success: false, 
-        message: 'Failed to create product',
+        message: 'Internal server error',
         error: error instanceof Error ? error.message : 'Unknown error'
       },
       { status: 500 }
