@@ -1,268 +1,483 @@
 'use client';
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Menu, 
-  Home, 
-  BarChart3, 
-  Package, 
-  Settings, 
-  Info, 
-  Phone, 
-  ChevronLeft,
-  ChevronRight
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Plus, Edit, Trash2, Package, TrendingUp, DollarSign, ShoppingCart } from 'lucide-react';
+import { toast } from 'sonner';
 
-const navigation = [
-  { 
-    name: 'Home', 
-    href: '/', 
-    icon: Home,
-    description: 'Dashboard utama'
-  },
-  { 
-    name: 'Dashboard', 
-    href: '/dashboard', 
-    icon: BarChart3,
-    description: 'Analytics & Reports'
-  },
-  { 
-    name: 'Products', 
-    href: '/products', 
-    icon: Package,
-    description: 'Katalog produk'
-  },
-  { 
-    name: 'Manage Products', 
-    href: '/products/manage', 
-    icon: Settings,
-    description: 'Kelola produk',
-    badge: 'Admin'
-  },
-  { 
-    name: 'About', 
-    href: '/about', 
-    icon: Info,
-    description: 'Tentang perusahaan'
-  },
-  { 
-    name: 'Contact', 
-    href: '/contact', 
-    icon: Phone,
-    description: 'Hubungi kami'
-  },
-];
-
-interface SidebarProps {
-  className?: string;
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+  description: string;
+  category: string;
+  createdAt: string;
+  updatedAt?: string;
 }
 
-export default function Sidebar({ className }: SidebarProps) {
-  const pathname = usePathname();
-  const [isCollapsed, setIsCollapsed] = useState(false);
+export default function ManageProductsPage() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    price: '',
+    description: '',
+    category: ''
+  });
 
-  return (
-    <>
-      {/* Desktop Sidebar */}
-      <div className={cn(
-        "hidden lg:flex lg:flex-col lg:fixed lg:inset-y-0 lg:z-50 lg:bg-white lg:border-r lg:border-gray-200 lg:shadow-sm",
-        isCollapsed ? "lg:w-16" : "lg:w-72",
-        className
-      )}>
-        {/* Logo */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50/50">
-          {!isCollapsed && (
-            <Link href="/" className="flex items-center space-x-2">
-              <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-md">
-                <span className="text-white font-bold text-sm">A</span>
-              </div>
-              <span className="font-bold text-xl text-gray-900 tracking-tight">Acme</span>
-            </Link>
-          )}
-          
-          {isCollapsed && (
-            <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center mx-auto shadow-md">
-              <span className="text-white font-bold text-sm">A</span>
-            </div>
-          )}
-          
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="h-8 w-8 hover:bg-gray-200 transition-colors"
-          >
-            {isCollapsed ? (
-              <ChevronRight className="w-4 h-4" />
-            ) : (
-              <ChevronLeft className="w-4 h-4" />
-            )}
-          </Button>
-        </div>
+  // Fetch products
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/products');
+      const result = await response.json();
+      
+      if (result.success) {
+        setProducts(result.data);
+      } else {
+        toast.error('Gagal memuat produk');
+      }
+    } catch (error) {
+      toast.error('Error memuat produk');
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        {/* Navigation */}
-        <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
-          {navigation.map((item) => {
-            const isActive = pathname === item.href || 
-              (item.href !== '/' && pathname.startsWith(item.href));
-            
-            return (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={cn(
-                  'flex items-center space-x-3 px-3 py-3 rounded-xl text-sm font-medium transition-all duration-200 group relative',
-                  isActive
-                    ? 'bg-blue-50 text-blue-700 shadow-sm border border-blue-100'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 hover:shadow-sm',
-                  isCollapsed && 'justify-center px-3'
-                )}
-                title={isCollapsed ? item.name : undefined}
-              >
-                {isActive && !isCollapsed && (
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full" />
-                )}
-                <item.icon className={cn(
-                  "flex-shrink-0",
-                  isActive ? "text-blue-600" : "text-gray-400 group-hover:text-gray-600",
-                  isCollapsed ? "w-5 h-5" : "w-5 h-5"
-                )} />
-                
-                {!isCollapsed && (
-                  <>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <span>{item.name}</span>
-                        {item.badge && (
-                          <Badge variant="secondary" className="text-xs">
-                            {item.badge}
-                          </Badge>
-                        )}
-                      </div>
-                      <p className="text-xs text-gray-500 mt-0.5">
-                        {item.description}
-                      </p>
-                    </div>
-                  </>
-                )}
-              </Link>
-            );
-          })}
-        </nav>
+  // Add product
+  const handleAddProduct = async () => {
+    try {
+      const response = await fetch('/api/products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          price: parseFloat(formData.price),
+          description: formData.description,
+          category: formData.category
+        }),
+      });
 
-        {/* Footer */}
-        {!isCollapsed && (
-          <div className="p-4 border-t border-gray-200">
-            <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-3">
-              <h4 className="text-sm font-medium text-gray-900 mb-1">
-                Need Help?
-              </h4>
-              <p className="text-xs text-gray-600 mb-2">
-                Contact our support team
-              </p>
-              <Link href="/contact">
-                <Button size="sm" className="w-full text-xs">
-                  Get Support
-                </Button>
-              </Link>
-            </div>
+      const result = await response.json();
+
+      if (result.success) {
+        toast.success('Produk berhasil ditambahkan');
+        setIsAddDialogOpen(false);
+        resetForm();
+        fetchProducts();
+      } else {
+        toast.error(result.message || 'Gagal menambahkan produk');
+      }
+    } catch (error) {
+      toast.error('Error menambahkan produk');
+      console.error('Error:', error);
+    }
+  };
+
+  // Edit product
+  const handleEditProduct = async () => {
+    if (!editingProduct) return;
+
+    try {
+      const response = await fetch(`/api/products/${editingProduct.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          price: parseFloat(formData.price),
+          description: formData.description,
+          category: formData.category
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        toast.success('Produk berhasil diupdate');
+        setIsEditDialogOpen(false);
+        setEditingProduct(null);
+        resetForm();
+        fetchProducts();
+      } else {
+        toast.error(result.message || 'Gagal mengupdate produk');
+      }
+    } catch (error) {
+      toast.error('Error mengupdate produk');
+      console.error('Error:', error);
+    }
+  };
+
+  // Delete product
+  const handleDeleteProduct = async (id: number) => {
+    try {
+      const response = await fetch(`/api/products/${id}`, {
+        method: 'DELETE',
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        toast.success('Produk berhasil dihapus');
+        fetchProducts();
+      } else {
+        toast.error(result.message || 'Gagal menghapus produk');
+      }
+    } catch (error) {
+      toast.error('Error menghapus produk');
+      console.error('Error:', error);
+    }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      price: '',
+      description: '',
+      category: ''
+    });
+  };
+
+  const openEditDialog = (product: Product) => {
+    setEditingProduct(product);
+    setFormData({
+      name: product.name,
+      price: product.price.toString(),
+      description: product.description,
+      category: product.category
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  // Calculate statistics
+  const totalProducts = products.length;
+  const totalValue = products.reduce((sum, product) => sum + product.price, 0);
+  const averagePrice = totalProducts > 0 ? totalValue / totalProducts : 0;
+  const categories = [...new Set(products.map(p => p.category))].length;
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Memuat data produk...</p>
           </div>
-        )}
+        </div>
       </div>
-
-      {/* Mobile Navigation */}
-      <div className="lg:hidden">
-        <MobileSidebar />
-      </div>
-    </>
-  );
-}
-
-function MobileSidebar() {
-  const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(false);
+    );
+  }
 
   return (
-    <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetTrigger asChild>
-        <Button variant="ghost" size="sm" className="lg:hidden">
-          <Menu className="w-5 h-5" />
-        </Button>
-      </SheetTrigger>
-      <SheetContent side="left" className="w-80 p-0">
-        {/* Mobile Logo */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
-          <Link href="/" className="flex items-center space-x-2" onClick={() => setIsOpen(false)}>
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">A</span>
-            </div>
-            <span className="font-bold text-xl text-gray-900">Acme</span>
-          </Link>
+    <div className="container mx-auto px-4 py-8 space-y-8">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Kelola Produk</h1>
+          <p className="text-gray-600 mt-1">Kelola semua produk dalam sistem</p>
         </div>
         
-        {/* Mobile Navigation */}
-        <nav className="flex-1 p-4 space-y-2">
-          {navigation.map((item) => {
-            const isActive = pathname === item.href || 
-              (item.href !== '/' && pathname.startsWith(item.href));
-            
-            return (
-              <Link
-                key={item.name}
-                href={item.href}
-                onClick={() => setIsOpen(false)}
-                className={cn(
-                  'flex items-center space-x-3 px-3 py-3 rounded-lg text-sm font-medium transition-colors w-full',
-                  isActive
-                    ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                )}
-              >
-                <item.icon className={cn(
-                  "w-5 h-5 flex-shrink-0",
-                  isActive ? "text-blue-600" : "text-gray-400"
-                )} />
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <span>{item.name}</span>
-                    {item.badge && (
-                      <Badge variant="secondary" className="text-xs">
-                        {item.badge}
-                      </Badge>
-                    )}
-                  </div>
-                  <p className="text-xs text-gray-500 mt-0.5">
-                    {item.description}
-                  </p>
-                </div>
-              </Link>
-            );
-          })}
-        </nav>
-
-        {/* Mobile Footer */}
-        <div className="p-4 border-t border-gray-200">
-          <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-3">
-            <h4 className="text-sm font-medium text-gray-900 mb-1">
-              Need Help?
-            </h4>
-            <p className="text-xs text-gray-600 mb-2">
-              Contact our support team
-            </p>
-            <Link href="/contact" onClick={() => setIsOpen(false)}>
-              <Button size="sm" className="w-full text-xs">
-                Get Support
+        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="flex items-center gap-2">
+              <Plus className="w-4 h-4" />
+              Tambah Produk
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Tambah Produk Baru</DialogTitle>
+              <DialogDescription>
+                Isi form di bawah untuk menambahkan produk baru
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="name">Nama Produk</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  placeholder="Masukkan nama produk"
+                />
+              </div>
+              <div>
+                <Label htmlFor="price">Harga (Rp)</Label>
+                <Input
+                  id="price"
+                  type="number"
+                  value={formData.price}
+                  onChange={(e) => setFormData({...formData, price: e.target.value})}
+                  placeholder="Masukkan harga"
+                />
+              </div>
+              <div>
+                <Label htmlFor="category">Kategori</Label>
+                <Select value={formData.category} onValueChange={(value) => setFormData({...formData, category: value})}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pilih kategori" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Analytics">Analytics</SelectItem>
+                    <SelectItem value="Security">Security</SelectItem>
+                    <SelectItem value="Development">Development</SelectItem>
+                    <SelectItem value="General">General</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="description">Deskripsi</Label>
+                <Textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => setFormData({...formData, description: e.target.value})}
+                  placeholder="Masukkan deskripsi produk"
+                  rows={3}
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+                Batal
               </Button>
-            </Link>
+              <Button onClick={handleAddProduct}>
+                Tambah Produk
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Produk</CardTitle>
+            <Package className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{totalProducts}</div>
+            <p className="text-xs text-muted-foreground">
+              Produk terdaftar
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Nilai</CardTitle>
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{formatCurrency(totalValue)}</div>
+            <p className="text-xs text-muted-foreground">
+              Nilai keseluruhan
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Rata-rata Harga</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{formatCurrency(averagePrice)}</div>
+            <p className="text-xs text-muted-foreground">
+              Per produk
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Kategori</CardTitle>
+            <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{categories}</div>
+            <p className="text-xs text-muted-foreground">
+              Kategori berbeda
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Products Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Daftar Produk</CardTitle>
+          <CardDescription>
+            Kelola semua produk yang tersedia dalam sistem
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {products.length === 0 ? (
+            <div className="text-center py-8">
+              <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Belum ada produk</h3>
+              <p className="text-gray-600 mb-4">Mulai dengan menambahkan produk pertama Anda</p>
+              <Button onClick={() => setIsAddDialogOpen(true)}>
+                <Plus className="w-4 h-4 mr-2" />
+                Tambah Produk
+              </Button>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nama</TableHead>
+                  <TableHead>Kategori</TableHead>
+                  <TableHead>Harga</TableHead>
+                  <TableHead>Deskripsi</TableHead>
+                  <TableHead>Tanggal Dibuat</TableHead>
+                  <TableHead className="text-right">Aksi</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {products.map((product) => (
+                  <TableRow key={product.id}>
+                    <TableCell className="font-medium">{product.name}</TableCell>
+                    <TableCell>
+                      <Badge variant="secondary">{product.category}</Badge>
+                    </TableCell>
+                    <TableCell>{formatCurrency(product.price)}</TableCell>
+                    <TableCell className="max-w-xs truncate">{product.description}</TableCell>
+                    <TableCell>{new Date(product.createdAt).toLocaleDateString('id-ID')}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => openEditDialog(product)}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="outline" size="sm">
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Hapus Produk</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Apakah Anda yakin ingin menghapus produk "{product.name}"? 
+                                Tindakan ini tidak dapat dibatalkan.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Batal</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDeleteProduct(product.id)}>
+                                Hapus
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Edit Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Produk</DialogTitle>
+            <DialogDescription>
+              Ubah informasi produk di bawah ini
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="edit-name">Nama Produk</Label>
+              <Input
+                id="edit-name"
+                value={formData.name}
+                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                placeholder="Masukkan nama produk"
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-price">Harga (Rp)</Label>
+              <Input
+                id="edit-price"
+                type="number"
+                value={formData.price}
+                onChange={(e) => setFormData({...formData, price: e.target.value})}
+                placeholder="Masukkan harga"
+              />
+            </div>
+            <div>
+              <Label htmlFor="edit-category">Kategori</Label>
+              <Select value={formData.category} onValueChange={(value) => setFormData({...formData, category: value})}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Pilih kategori" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Analytics">Analytics</SelectItem>
+                  <SelectItem value="Security">Security</SelectItem>
+                  <SelectItem value="Development">Development</SelectItem>
+                  <SelectItem value="General">General</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="edit-description">Deskripsi</Label>
+              <Textarea
+                id="edit-description"
+                value={formData.description}
+                onChange={(e) => setFormData({...formData, description: e.target.value})}
+                placeholder="Masukkan deskripsi produk"
+                rows={3}
+              />
+            </div>
           </div>
-        </div>
-      </SheetContent>
-    </Sheet>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+              Batal
+            </Button>
+            <Button onClick={handleEditProduct}>
+              Update Produk
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }

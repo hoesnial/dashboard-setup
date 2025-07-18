@@ -177,9 +177,7 @@ export default function Sidebar({ className }: SidebarProps) {
       </div>
 
       {/* Mobile Navigation */}
-      <div className="lg:hidden">
-        <MobileSidebar />
-      </div>
+      <MobileSidebar />
     </>
   );
 }
@@ -191,7 +189,7 @@ function MobileSidebar() {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="sm" className="lg:hidden">
+        <Button variant="ghost" size="sm" className="lg:hidden fixed top-4 left-4 z-50">
           <Menu className="w-5 h-5" />
         </Button>
       </SheetTrigger>

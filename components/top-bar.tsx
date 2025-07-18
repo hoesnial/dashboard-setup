@@ -19,10 +19,6 @@ export default function TopBar() {
   return (
     <header className="sticky top-0 z-40 w-full border-b border-gray-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 lg:pl-72 shadow-sm">
       <div className="flex h-16 items-center justify-between px-4 lg:px-8">
-        {/* Mobile Sidebar Trigger */}
-        <div className="lg:hidden">
-          <Sidebar />
-        </div>
 
         {/* Search */}
         <div className="flex-1 max-w-lg mx-6">
