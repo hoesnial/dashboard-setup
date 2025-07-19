@@ -1,6 +1,6 @@
-# Dashboard Setup - CRUD Application with Neon Database
+# CRUD Application with Neon PostgreSQL Database
 
-Aplikasi CRUD (Create, Read, Update, Delete) lengkap menggunakan Next.js yang terhubung dengan Neon PostgreSQL database.
+Aplikasi CRUD (Create, Read, Update, Delete) lengkap menggunakan Next.js yang terhubung dengan Neon PostgreSQL database serverless.
 
 ## 🚀 Fitur Utama
 
@@ -32,7 +32,7 @@ Aplikasi CRUD (Create, Read, Update, Delete) lengkap menggunakan Next.js yang te
 - **shadcn/ui**: Component library yang modern
 - **Sonner**: Toast notifications
 
-## 📦 Setup Database
+## 📦 Setup Neon Database
 
 ### 1. Buat Project Neon
 1. Kunjungi [console.neon.tech](https://console.neon.tech)
@@ -46,7 +46,7 @@ Buat file `.env.local` dan isi dengan kredensial Neon:
 DATABASE_URL="postgresql://username:password@ep-xxx-xxx.us-east-1.aws.neon.tech/neondb?sslmode=require"
 ```
 
-### 3. Jalankan Migration
+### 3. Jalankan Schema SQL
 Jalankan SQL migration di Neon SQL Editor:
 - Buka file `neon/schema.sql`
 - Copy dan paste ke SQL Editor di Neon Console
@@ -103,7 +103,7 @@ CREATE TABLE products (
 
 ## 🔒 Keamanan
 
-- **SSL Connection**: Koneksi terenkripsi ke database
+- **SSL Connection**: Koneksi terenkripsi ke Neon database
 - **Input Validation**: Validasi di client dan server
 - **SQL Injection Protection**: Menggunakan parameterized queries
 - **Type Safety**: TypeScript untuk mencegah error
@@ -149,8 +149,9 @@ CREATE TABLE products (
 │   └── top-bar.tsx          # Header
 ├── lib/
 │   └── neon.ts              # Database client
-└── neon/
-    └── schema.sql           # Database schema
+├── neon/
+│   └── schema.sql           # Neon database schema
+└── README.md
 ```
 
 ### Best Practices
