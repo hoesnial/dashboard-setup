@@ -1,30 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/neon';
 
-// GET - Mengambil semua data products dari database
+// GET - Mengambil semua data products dari database Neon
 export async function GET() {
   try {
-    const { data: products, error } = await supabase
-      .from('products')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('Supabase error:', error);
-      return NextResponse.json(
-        { 
-          success: false, 
-          message: 'Failed to retrieve products from database',
-          error: error.message
-        },
-        { status: 500 }
-      );
-    }
+    const products = await db.getProducts();
 
     return NextResponse.json({
       success: true,
-      data: products || [],
-      message: 'Products retrieved successfully'
+      data: products,
+      message: 'Products retrieved successfully from Neon database'
     });
 
   } catch (error) {
@@ -32,7 +17,7 @@ export async function GET() {
     return NextResponse.json(
       { 
         success: false, 
-        message: 'Internal server error',
+        message: 'Failed to retrieve products from database',
         error: error instanceof Error ? error.message : 'Unknown error'
       },
       { status: 500 }
@@ -40,7 +25,7 @@ export async function GET() {
   }
 }
 
-// POST - Menambahkan data baru ke database
+// POST - Menambahkan data baru ke database Neon
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -67,35 +52,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { data: product, error } = await supabase
-      .from('products')
-      .insert([
-        {
-          name: body.name,
-          price: body.price,
-          description: body.description || '',
-          category: body.category || 'General',
-        }
-      ])
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Supabase error:', error);
-      return NextResponse.json(
-        { 
-          success: false, 
-          message: 'Failed to create product in database',
-          error: error.message
-        },
-        { status: 500 }
-      );
-    }
+    const product = await db.createProduct({
+      name: body.name,
+      price: body.price,
+      description: body.description || '',
+      category: body.category || 'General',
+    });
 
     return NextResponse.json({
       success: true,
       data: product,
-      message: 'Product created successfully'
+      message: 'Product created successfully in Neon database'
     }, { status: 201 });
 
   } catch (error) {
@@ -103,7 +70,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { 
         success: false, 
-        message: 'Internal server error',
+        message: 'Failed to create product in database',
         error: error instanceof Error ? error.message : 'Unknown error'
       },
       { status: 500 }

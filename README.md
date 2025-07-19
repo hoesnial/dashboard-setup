@@ -1,20 +1,20 @@
-# Dashboard Setup - CRUD Application with Database
+# Dashboard Setup - CRUD Application with Neon Database
 
-Aplikasi CRUD (Create, Read, Update, Delete) lengkap menggunakan Next.js yang terhubung dengan database Supabase.
+Aplikasi CRUD (Create, Read, Update, Delete) lengkap menggunakan Next.js yang terhubung dengan Neon PostgreSQL database.
 
 ## 🚀 Fitur Utama
 
 ### ✅ CRUD Lengkap dengan Database
-- **Create**: Menambahkan produk baru ke database
-- **Read**: Menampilkan semua produk dari database
-- **Update**: Mengedit produk yang ada di database
-- **Delete**: Menghapus produk dari database
+- **Create**: Menambahkan produk baru ke Neon database
+- **Read**: Menampilkan semua produk dari Neon database
+- **Update**: Mengedit produk yang ada di Neon database
+- **Delete**: Menghapus produk dari Neon database
 
 ### 🗄️ Database Integration
-- **Supabase PostgreSQL**: Database cloud yang reliable
+- **Neon PostgreSQL**: Database cloud yang reliable dan cepat
 - **Real-time Updates**: Data tersinkronisasi secara real-time
 - **Data Persistence**: Data tersimpan permanen di database
-- **Row Level Security**: Keamanan data terjamin
+- **Serverless**: Auto-scaling database tanpa maintenance
 
 ### 🎨 User Interface
 - **Modern Design**: UI yang clean dan profesional
@@ -25,32 +25,31 @@ Aplikasi CRUD (Create, Read, Update, Delete) lengkap menggunakan Next.js yang te
 
 ## 🛠️ Teknologi yang Digunakan
 
-- **Next.js 13+**: React framework dengan App Router
+- **Next.js 14+**: React framework dengan App Router
 - **TypeScript**: Type safety untuk development
-- **Supabase**: Database PostgreSQL cloud
+- **Neon**: Serverless PostgreSQL database
 - **Tailwind CSS**: Utility-first CSS framework
 - **shadcn/ui**: Component library yang modern
 - **Sonner**: Toast notifications
 
 ## 📦 Setup Database
 
-### 1. Buat Project Supabase
-1. Kunjungi [supabase.com](https://supabase.com)
+### 1. Buat Project Neon
+1. Kunjungi [console.neon.tech](https://console.neon.tech)
 2. Buat akun dan project baru
-3. Catat URL dan Anon Key dari project
+3. Catat Database URL dari connection string
 
 ### 2. Setup Environment Variables
-Buat file `.env.local` dan isi dengan kredensial Supabase:
+Buat file `.env.local` dan isi dengan kredensial Neon:
 
 ```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+DATABASE_URL="postgresql://username:password@ep-xxx-xxx.us-east-1.aws.neon.tech/neondb?sslmode=require"
 ```
 
 ### 3. Jalankan Migration
-Jalankan SQL migration di Supabase SQL Editor:
-- Buka file `supabase/migrations/create_products_table.sql`
-- Copy dan paste ke SQL Editor di Supabase Dashboard
+Jalankan SQL migration di Neon SQL Editor:
+- Buka file `neon/schema.sql`
+- Copy dan paste ke SQL Editor di Neon Console
 - Jalankan query untuk membuat tabel dan data sample
 
 ## 🚀 Cara Menjalankan
@@ -87,13 +86,13 @@ npm run dev
 ### Tabel Products
 ```sql
 CREATE TABLE products (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name text NOT NULL,
   price numeric NOT NULL CHECK (price > 0),
   description text DEFAULT '',
   category text DEFAULT 'General',
-  created_at timestamptz DEFAULT now(),
-  updated_at timestamptz DEFAULT now()
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 ```
 
@@ -104,9 +103,9 @@ CREATE TABLE products (
 
 ## 🔒 Keamanan
 
-- **Row Level Security (RLS)**: Aktif di semua tabel
+- **SSL Connection**: Koneksi terenkripsi ke database
 - **Input Validation**: Validasi di client dan server
-- **SQL Injection Protection**: Menggunakan Supabase client
+- **SQL Injection Protection**: Menggunakan parameterized queries
 - **Type Safety**: TypeScript untuk mencegah error
 
 ## 📊 API Endpoints
@@ -129,11 +128,11 @@ CREATE TABLE products (
 
 ## 🎯 Keunggulan Aplikasi
 
-1. **Data Persistence**: Data tersimpan permanen di database cloud
+1. **Data Persistence**: Data tersimpan permanen di Neon PostgreSQL
 2. **Real-time Updates**: Perubahan data langsung terlihat
-3. **Scalable**: Dapat menangani ribuan produk
-4. **Secure**: Keamanan tingkat enterprise
-5. **Fast**: Performance optimal dengan caching
+3. **Serverless**: Auto-scaling tanpa maintenance
+4. **Fast**: Performance optimal dengan Neon
+5. **Secure**: SSL dan input validation
 6. **Responsive**: UI yang adaptif di semua device
 
 ## 🔧 Development
@@ -149,9 +148,9 @@ CREATE TABLE products (
 │   ├── sidebar.tsx           # Navigation
 │   └── top-bar.tsx          # Header
 ├── lib/
-│   └── supabase.ts          # Database client
-└── supabase/
-    └── migrations/          # Database migrations
+│   └── neon.ts              # Database client
+└── neon/
+    └── schema.sql           # Database schema
 ```
 
 ### Best Practices
@@ -167,11 +166,10 @@ CREATE TABLE products (
 - [ ] Bulk operations (import/export)
 - [ ] Image upload untuk produk
 - [ ] User authentication
-- [ ] Role-based access control
 - [ ] Analytics dashboard
 - [ ] API rate limiting
 - [ ] Automated testing
 
 ---
 
-**Dibuat dengan ❤️ menggunakan Next.js dan Supabase**
+**Dibuat dengan ❤️ menggunakan Next.js dan Neon PostgreSQL**

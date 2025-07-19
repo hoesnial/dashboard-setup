@@ -1,44 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/neon';
 
-// GET - Mengambil data product berdasarkan ID dari database
+// GET - Mengambil data product berdasarkan ID dari database Neon
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const { data: product, error } = await supabase
-      .from('products')
-      .select('*')
-      .eq('id', params.id)
-      .single();
+    const product = await db.getProductById(params.id);
 
-    if (error) {
-      if (error.code === 'PGRST116') {
-        return NextResponse.json(
-          { 
-            success: false, 
-            message: 'Product not found' 
-          },
-          { status: 404 }
-        );
-      }
-      
-      console.error('Supabase error:', error);
+    if (!product) {
       return NextResponse.json(
         { 
           success: false, 
-          message: 'Failed to retrieve product from database',
-          error: error.message
+          message: 'Product not found' 
         },
-        { status: 500 }
+        { status: 404 }
       );
     }
 
     return NextResponse.json({
       success: true,
       data: product,
-      message: 'Product retrieved successfully'
+      message: 'Product retrieved successfully from Neon database'
     });
 
   } catch (error) {
@@ -46,7 +30,7 @@ export async function GET(
     return NextResponse.json(
       { 
         success: false, 
-        message: 'Internal server error',
+        message: 'Failed to retrieve product from database',
         error: error instanceof Error ? error.message : 'Unknown error'
       },
       { status: 500 }
@@ -54,7 +38,7 @@ export async function GET(
   }
 }
 
-// PUT - Mengupdate data product di database
+// PUT - Mengupdate data product di database Neon
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -84,52 +68,36 @@ export async function PUT(
       );
     }
 
-    const { data: product, error } = await supabase
-      .from('products')
-      .update({
-        name: body.name,
-        price: body.price,
-        description: body.description || '',
-        category: body.category || 'General',
-      })
-      .eq('id', params.id)
-      .select()
-      .single();
-
-    if (error) {
-      if (error.code === 'PGRST116') {
-        return NextResponse.json(
-          { 
-            success: false, 
-            message: 'Product not found' 
-          },
-          { status: 404 }
-        );
-      }
-      
-      console.error('Supabase error:', error);
-      return NextResponse.json(
-        { 
-          success: false, 
-          message: 'Failed to update product in database',
-          error: error.message
-        },
-        { status: 500 }
-      );
-    }
+    const product = await db.updateProduct(params.id, {
+      name: body.name,
+      price: body.price,
+      description: body.description || '',
+      category: body.category || 'General',
+    });
 
     return NextResponse.json({
       success: true,
       data: product,
-      message: 'Product updated successfully'
+      message: 'Product updated successfully in Neon database'
     });
 
   } catch (error) {
     console.error('API error:', error);
+    
+    if (error instanceof Error && error.message === 'Product not found') {
+      return NextResponse.json(
+        { 
+          success: false, 
+          message: 'Product not found' 
+        },
+        { status: 404 }
+      );
+    }
+    
     return NextResponse.json(
       { 
         success: false, 
-        message: 'Internal server error',
+        message: 'Failed to update product in database',
         error: error instanceof Error ? error.message : 'Unknown error'
       },
       { status: 500 }
@@ -137,53 +105,37 @@ export async function PUT(
   }
 }
 
-// DELETE - Menghapus data product dari database
+// DELETE - Menghapus data product dari database Neon
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const { data: product, error } = await supabase
-      .from('products')
-      .delete()
-      .eq('id', params.id)
-      .select()
-      .single();
-
-    if (error) {
-      if (error.code === 'PGRST116') {
-        return NextResponse.json(
-          { 
-            success: false, 
-            message: 'Product not found' 
-          },
-          { status: 404 }
-        );
-      }
-      
-      console.error('Supabase error:', error);
-      return NextResponse.json(
-        { 
-          success: false, 
-          message: 'Failed to delete product from database',
-          error: error.message
-        },
-        { status: 500 }
-      );
-    }
+    const product = await db.deleteProduct(params.id);
 
     return NextResponse.json({
       success: true,
       data: product,
-      message: 'Product deleted successfully'
+      message: 'Product deleted successfully from Neon database'
     });
 
   } catch (error) {
     console.error('API error:', error);
+    
+    if (error instanceof Error && error.message === 'Product not found') {
+      return NextResponse.json(
+        { 
+          success: false, 
+          message: 'Product not found' 
+        },
+        { status: 404 }
+      );
+    }
+    
     return NextResponse.json(
       { 
         success: false, 
-        message: 'Internal server error',
+        message: 'Failed to delete product from database',
         error: error instanceof Error ? error.message : 'Unknown error'
       },
       { status: 500 }

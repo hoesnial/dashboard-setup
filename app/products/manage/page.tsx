@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Plus, Edit, Trash2, Package, TrendingUp, DollarSign, ShoppingCart, Database, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { Product } from '@/lib/supabase';
+import { Product } from '@/lib/neon';
 
 export default function ManageProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -39,10 +39,10 @@ export default function ManageProductsPage() {
       if (result.success) {
         setProducts(result.data);
       } else {
-        toast.error(result.message || 'Gagal memuat produk dari database');
+        toast.error(result.message || 'Gagal memuat produk dari Neon database');
       }
     } catch (error) {
-      toast.error('Error koneksi ke database');
+      toast.error('Error koneksi ke Neon database');
       console.error('Error:', error);
     } finally {
       setLoading(false);
@@ -74,15 +74,15 @@ export default function ManageProductsPage() {
       const result = await response.json();
 
       if (result.success) {
-        toast.success('Produk berhasil ditambahkan ke database');
+        toast.success('Produk berhasil ditambahkan ke Neon database');
         setIsAddDialogOpen(false);
         resetForm();
         fetchProducts();
       } else {
-        toast.error(result.message || 'Gagal menambahkan produk ke database');
+        toast.error(result.message || 'Gagal menambahkan produk ke Neon database');
       }
     } catch (error) {
-      toast.error('Error koneksi ke database');
+      toast.error('Error koneksi ke Neon database');
       console.error('Error:', error);
     } finally {
       setSubmitting(false);
@@ -114,16 +114,16 @@ export default function ManageProductsPage() {
       const result = await response.json();
 
       if (result.success) {
-        toast.success('Produk berhasil diupdate di database');
+        toast.success('Produk berhasil diupdate di Neon database');
         setIsEditDialogOpen(false);
         setEditingProduct(null);
         resetForm();
         fetchProducts();
       } else {
-        toast.error(result.message || 'Gagal mengupdate produk di database');
+        toast.error(result.message || 'Gagal mengupdate produk di Neon database');
       }
     } catch (error) {
-      toast.error('Error koneksi ke database');
+      toast.error('Error koneksi ke Neon database');
       console.error('Error:', error);
     } finally {
       setSubmitting(false);
@@ -140,13 +140,13 @@ export default function ManageProductsPage() {
       const result = await response.json();
 
       if (result.success) {
-        toast.success('Produk berhasil dihapus dari database');
+        toast.success('Produk berhasil dihapus dari Neon database');
         fetchProducts();
       } else {
-        toast.error(result.message || 'Gagal menghapus produk dari database');
+        toast.error(result.message || 'Gagal menghapus produk dari Neon database');
       }
     } catch (error) {
-      toast.error('Error koneksi ke database');
+      toast.error('Error koneksi ke Neon database');
       console.error('Error:', error);
     }
   };
@@ -206,6 +206,7 @@ export default function ManageProductsPage() {
           <div className="text-center">
             <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
             <p className="text-gray-600">Memuat data dari database...</p>
+            <p className="text-gray-600">Memuat data dari Neon database...</p>
           </div>
         </div>
       </div>
@@ -219,9 +220,9 @@ export default function ManageProductsPage() {
         <div>
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
             <Database className="w-8 h-8 text-blue-600" />
-            Kelola Produk Database
+            Kelola Produk Neon Database
           </h1>
-          <p className="text-gray-600 mt-1">Kelola semua produk yang tersimpan di database Supabase</p>
+          <p className="text-gray-600 mt-1">Kelola semua produk yang tersimpan di Neon PostgreSQL database</p>
         </div>
         
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
@@ -235,7 +236,7 @@ export default function ManageProductsPage() {
             <DialogHeader>
               <DialogTitle>Tambah Produk Baru</DialogTitle>
               <DialogDescription>
-                Isi form di bawah untuk menambahkan produk baru ke database
+                Isi form di bawah untuk menambahkan produk baru ke Neon database
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
@@ -378,10 +379,10 @@ export default function ManageProductsPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Database className="w-5 h-5 text-blue-600" />
-            Daftar Produk Database
+            Daftar Produk Neon Database
           </CardTitle>
           <CardDescription>
-            Kelola semua produk yang tersimpan di database Supabase
+            Kelola semua produk yang tersimpan di Neon PostgreSQL database
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -389,7 +390,7 @@ export default function ManageProductsPage() {
             <div className="text-center py-8">
               <Database className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">Database Kosong</h3>
-              <p className="text-gray-600 mb-4">Belum ada produk yang tersimpan di database</p>
+              <p className="text-gray-600 mb-4">Belum ada produk yang tersimpan di Neon database</p>
               <Button onClick={() => setIsAddDialogOpen(true)}>
                 <Plus className="w-4 h-4 mr-2" />
                 Tambah Produk Pertama
@@ -443,8 +444,10 @@ export default function ManageProductsPage() {
                             <AlertDialogContent>
                               <AlertDialogHeader>
                                 <AlertDialogTitle>Hapus Produk dari Database</AlertDialogTitle>
+                                <AlertDialogTitle>Hapus Produk dari Neon Database</AlertDialogTitle>
                                 <AlertDialogDescription>
                                   Apakah Anda yakin ingin menghapus produk "{product.name}" dari database? 
+                                  Apakah Anda yakin ingin menghapus produk "{product.name}" dari Neon database? 
                                   Tindakan ini tidak dapat dibatalkan dan data akan hilang permanen.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
@@ -454,7 +457,7 @@ export default function ManageProductsPage() {
                                   onClick={() => handleDeleteProduct(product.id)}
                                   className="bg-red-600 hover:bg-red-700"
                                 >
-                                  Hapus dari Database
+                                  Hapus dari Neon Database
                                 </AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>
@@ -475,8 +478,9 @@ export default function ManageProductsPage() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Edit Produk Database</DialogTitle>
+            <DialogTitle>Edit Produk Neon Database</DialogTitle>
             <DialogDescription>
-              Ubah informasi produk di database
+              Ubah informasi produk di Neon database
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
