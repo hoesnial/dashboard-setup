@@ -457,10 +457,8 @@ export default function ManageProductsPage() {
                             <AlertDialogContent>
                               <AlertDialogHeader>
                                 <AlertDialogTitle>Hapus Produk dari Database</AlertDialogTitle>
-                                <AlertDialogTitle>Hapus Produk dari Neon Database</AlertDialogTitle>
                                 <AlertDialogDescription>
                                   Apakah Anda yakin ingin menghapus produk "{product.name}" dari database? 
-                                  Apakah Anda yakin ingin menghapus produk "{product.name}" dari Neon database? 
                                   Tindakan ini tidak dapat dibatalkan dan data akan hilang permanen.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
@@ -470,7 +468,7 @@ export default function ManageProductsPage() {
                                   onClick={() => handleDeleteProduct(product.id)}
                                   className="bg-red-600 hover:bg-red-700"
                                 >
-                                  Hapus dari Neon Database
+                                  Hapus dari Database
                                 </AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>
@@ -491,7 +489,6 @@ export default function ManageProductsPage() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Edit Produk Database</DialogTitle>
-            <DialogTitle>Edit Produk Neon Database</DialogTitle>
             <DialogDescription>
               Ubah informasi produk di Neon database
             </DialogDescription>

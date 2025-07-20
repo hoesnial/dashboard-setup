@@ -67,7 +67,6 @@ export async function POST(request: NextRequest) {
     }
     
     console.log('Received request body:', body);
-    const body = await request.json();
     
     // Validasi input
     if (!body.name || !body.price) {
