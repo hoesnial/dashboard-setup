@@ -1,10 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
   eslint: {
     ignoreDuringBuilds: true,
   },
-  images: { unoptimized: true },
+  images: { 
+    unoptimized: true,
+    domains: ['images.pexels.com']
+  },
+  env: {
+    DATABASE_URL: process.env.DATABASE_URL,
+  },
 };
 
 module.exports = nextConfig;

@@ -33,17 +33,30 @@ export default function ManageProductsPage() {
   const fetchProducts = async () => {
     try {
       setLoading(true);
+      console.log('Fetching products from API...');
       const response = await fetch('/api/products');
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const result = await response.json();
+      console.log('API Response:', result);
       
       if (result.success) {
         setProducts(result.data);
+        console.log(`Loaded ${result.data.length} products`);
       } else {
+        console.error('API Error:', result);
         toast.error(result.message || 'Gagal memuat produk dari Neon database');
       }
     } catch (error) {
-      toast.error('Error koneksi ke Neon database');
-      console.error('Error:', error);
+      console.error('Fetch Error:', error);
+      if (error instanceof Error) {
+        toast.error(`Error koneksi ke Neon database: ${error.message}`);
+      } else {
+        toast.error('Error koneksi ke Neon database');
+      }
     } finally {
       setLoading(false);
     }

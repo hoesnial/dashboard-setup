@@ -4,6 +4,18 @@ import { db } from '@/lib/neon';
 // GET - Mengambil semua data products dari database Neon
 export async function GET() {
   try {
+    // Check database connection
+    if (!process.env.DATABASE_URL) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          message: 'Database connection not configured. Please set DATABASE_URL environment variable.',
+          error: 'Missing DATABASE_URL'
+        },
+        { status: 500 }
+      );
+    }
+
     const products = await db.getProducts();
 
     return NextResponse.json({
@@ -28,6 +40,18 @@ export async function GET() {
 // POST - Menambahkan data baru ke database Neon
 export async function POST(request: NextRequest) {
   try {
+    // Check database connection
+    if (!process.env.DATABASE_URL) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          message: 'Database connection not configured. Please set DATABASE_URL environment variable.',
+          error: 'Missing DATABASE_URL'
+        },
+        { status: 500 }
+      );
+    }
+
     const body = await request.json();
     
     // Validasi input
