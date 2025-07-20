@@ -33,6 +33,22 @@ export async function GET() {
       );
     `;
 
+    // Check table structure if it exists
+    let tableStructure = null;
+    if (tableCheck[0].exists) {
+      try {
+        tableStructure = await sql`
+          SELECT column_name, data_type, is_nullable, column_default
+          FROM information_schema.columns 
+          WHERE table_schema = 'public' 
+          AND table_name = 'products'
+          ORDER BY ordinal_position;
+        `;
+      } catch (error) {
+        console.error('Error checking table structure:', error);
+      }
+    }
+
     return NextResponse.json({
       success: true,
       message: 'Database connection successful!',
@@ -41,7 +57,8 @@ export async function GET() {
         timestamp: result[0].current_time,
         postgres_version: result[0].postgres_version,
         products_table_exists: tableCheck[0].exists,
-        database_url_configured: !!process.env.DATABASE_URL
+        database_url_configured: !!process.env.DATABASE_URL,
+        table_structure: tableStructure
       }
     });
 

@@ -59,16 +59,43 @@ export const db = {
   }): Promise<Product> {
     try {
       console.log('Creating new product:', data);
+      
+      // Validate input data
+      if (!data.name || data.name.trim() === '') {
+        throw new Error('Product name is required');
+      }
+      
+      if (!data.price || data.price <= 0) {
+        throw new Error('Product price must be greater than 0');
+      }
+      
       const result = await sql`
         INSERT INTO products (name, price, description, category)
         VALUES (${data.name}, ${data.price}, ${data.description}, ${data.category})
         RETURNING *
       `;
+      
+      if (!result || result.length === 0) {
+        throw new Error('Failed to insert product - no data returned');
+      }
+      
       console.log('Product created successfully');
       return result[0] as Product;
     } catch (error) {
       console.error('Neon database error (createProduct):', error);
-      throw new Error(`Failed to create product: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      
+      // Handle specific PostgreSQL errors
+      if (error instanceof Error) {
+        if (error.message.includes('relation "products" does not exist')) {
+          throw new Error('Products table does not exist. Please run the database schema first.');
+        }
+        if (error.message.includes('duplicate key')) {
+          throw new Error('Product with this name already exists');
+        }
+        throw new Error(`Database error: ${error.message}`);
+      }
+      
+      throw new Error('Unknown database error occurred');
     }
   },
 
@@ -81,6 +108,16 @@ export const db = {
   }): Promise<Product> {
     try {
       console.log(`Updating product ${id}:`, data);
+      
+      // Validate input data
+      if (!data.name || data.name.trim() === '') {
+        throw new Error('Product name is required');
+      }
+      
+      if (!data.price || data.price <= 0) {
+        throw new Error('Product price must be greater than 0');
+      }
+      
       const result = await sql`
         UPDATE products 
         SET 

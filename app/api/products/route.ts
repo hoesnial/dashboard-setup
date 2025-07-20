@@ -52,6 +52,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    let body;
+    try {
+      body = await request.json();
+    } catch (parseError) {
+      console.error('JSON parse error:', parseError);
+      return NextResponse.json(
+        { 
+          success: false, 
+          message: 'Invalid JSON in request body' 
+        },
+        { status: 400 }
+      );
+    }
+    
+    console.log('Received request body:', body);
     const body = await request.json();
     
     // Validasi input
@@ -65,8 +80,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Convert price to number if it's a string
+    const price = typeof body.price === 'string' ? parseFloat(body.price) : body.price;
+    
     // Validasi price harus number
-    if (typeof body.price !== 'number' || body.price <= 0) {
+    if (isNaN(price) || price <= 0) {
       return NextResponse.json(
         { 
           success: false, 
@@ -76,12 +94,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    console.log('Creating product with data:', {
+      name: body.name,
+      price: price,
+      description: body.description || '',
+      category: body.category || 'General'
+    });
+
     const product = await db.createProduct({
       name: body.name,
-      price: body.price,
+      price: price,
       description: body.description || '',
       category: body.category || 'General',
     });
+
+    console.log('Product created successfully:', product);
 
     return NextResponse.json({
       success: true,
@@ -91,6 +118,26 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('API error:', error);
+    
+    // Handle specific database errors
+    if (error instanceof Error) {
+      if (error.message.includes('relation "products" does not exist')) {
+        return NextResponse.json(
+          { 
+            success: false, 
+            message: 'Database table not found. Please run the database schema first.',
+            error: error.message,
+            instructions: [
+              '1. Go to Neon Console SQL Editor',
+              '2. Run the schema from neon/schema.sql file',
+              '3. Try creating the product again'
+            ]
+          },
+          { status: 500 }
+        );
+      }
+    }
+    
     return NextResponse.json(
       { 
         success: false, 
